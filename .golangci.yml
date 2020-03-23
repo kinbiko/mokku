@@ -1,0 +1,135 @@
+# See https://github.com/golangci/golangci-lint/blob/master/.golangci.example.yml for all configuration options
+
+run.deadline: 1m
+
+linters-settings:
+  errcheck:
+    # report about not checking of errors in type assertions: `a := b.(MyStruct)`;
+    # default is false: such cases aren't reported by default.
+    check-type-assertions: true
+  goimports:
+    # put imports beginning with prefix after 3rd-party packages;
+    # it's a comma-separated list of prefixes
+    local-prefixes: github.com/kinbiko
+  gocyclo:
+    # minimal code complexity to report
+    min-complexity: 10
+  dupl:
+    # tokens count to trigger issue, 150 by default
+    threshold: 150
+  depguard:
+    # Packages we don't want to accidentally import
+    packages:
+      # This package has previously broken backwards compatibility in a non-major upgrade
+      # Recommend using github.com/gofrs/uuid instead
+      - github.com/satori/go.uuid
+  nakedret:
+    # Disallow naked returns
+    max-func-lines: 0
+  gocritic:
+    # Which checks should be enabled; can't be combined with 'disabled-checks';
+    # See https://go-critic.github.io/overview#checks-overview
+    # To check which checks are enabled run `GL_DEBUG=gocritic golangci-lint run`
+    # By default list of stable checks is used.
+    #
+    # These checks are stable, and explicitly defined to ensure reproducible builds
+    enabled-checks:
+      - appendAssign
+      - appendCombine
+      - assignOp
+      - badCond
+      - boolExprSimplify
+      - builtinShadow
+      - captLocal
+      - caseOrder
+      - commentedOutImport
+      - defaultCaseOrder
+      - deprecatedComment
+      - dupArg
+      - dupBranchBody
+      - dupCase
+      - dupSubExpr
+      - elseif
+      - emptyFallthrough
+      - emptyStringTest
+      - equalFold
+      - flagDeref
+      - flagName
+      - hugeParam
+      - ifElseChain
+      - importShadow
+      - indexAlloc
+      - initClause
+      - methodExprCall
+      - nestingReduce
+      - nilValReturn
+      - offBy1
+      - ptrToRefParam
+      - rangeExprCopy
+      - rangeValCopy
+      - regexpMust
+      - singleCaseSwitch
+      - sloppyLen
+      - sloppyReassign
+      - switchTrue
+      - typeSwitchVar
+      - typeUnparen
+      - underef
+      - unlabelStmt
+      - unlambda
+      - unnecessaryBlock
+      - unslice
+      - valSwap
+      - wrapperFunc
+      - weakCond
+      - yodaStyleExpr
+
+linters:
+  # Run `golangci-lint linters` to see all options + a brief description of each
+  enable:
+    - govet
+    - gosimple
+    - golint
+    - gosec
+    - structcheck
+    - unconvert
+    - ineffassign
+    - dupl
+    - deadcode
+    - gocyclo
+    - gofmt
+    - depguard
+    - misspell
+    - nakedret
+    - gocritic
+    - gochecknoinits
+    - errcheck
+    - staticcheck
+    - varcheck
+    - scopelint
+    - gochecknoglobals
+    - unparam
+
+  enable-all: false # Don't enable all, as the introduction of a new linter would mean a non-reproducible build.
+  disable-all: true
+
+issues:
+  exclude:
+    # gosec: Duplicated errcheck checks
+    - G104
+    # errcheck: Almost all programs ignore errors on these functions and in most cases it's ok
+    - Error return value of .((os\.)?std(out|err)\..*|.*Close|.*Flush|os\.Remove(All)?|.*printf?|os\.(Un)?Setenv). is not checked
+
+  exclude-rules:
+    # Exclude some linters from running on tests files.
+    - path: _test\.go
+      linters:
+        - gocyclo
+        - errcheck
+        - dupl
+        - gosec
+        - scopelint
+  exclude-use-default: false
+
+service:
+  golangci-lint-version: 1.21.x # use fixed version to not introduce new linters unexpectedly
