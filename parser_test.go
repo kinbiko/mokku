@@ -1,6 +1,7 @@
 package mokku
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -77,15 +78,15 @@ func TestParser(t *testing.T) {
 			name: "mega complex example",
 			src: `type GoodLuck interface {
 				First()
-				Second(ctx context.Context, f []*fish, s, ss string) (error, int, chan struct{})
-				Third() (a, b string, e error)
+				Second(ctx context.Context, _ []*fish, s, ss string) (error, int, chan struct{})
+				Third(vararg ...map[string]interface{}) (a, b string, e error)
 			}`,
 			exp: &targetInterface{
 				name: "GoodLuck",
 				methods: []*method{
 					{name: "First", signature: `( )`},
-					{name: "Second", signature: `( ctx context . Context , f [ ] fish , s , ss string ) ( error , int , chan struct { } )`},
-					{name: "Third", signature: `( ) ( a , b string , e error )`},
+					{name: "Second", signature: `( ctx context . Context , _ [ ] fish , s , ss string ) ( error , int , chan struct { } )`},
+					{name: "Third", signature: `( vararg ... map [ string ] interface { } ) ( a , b string , e error )`},
 				},
 			},
 		},
@@ -124,4 +125,40 @@ func TestParser(t *testing.T) {
 			}
 		})
 	}
+
+	t.Run("error cases", func(t *testing.T) {
+		for _, tc := range []struct {
+			name string
+			src  string
+			exp  string
+		}{
+			{
+				name: "just curly brackets",
+				src:  `{}`,
+				exp:  "unable to find interface declaration",
+			},
+			{
+				name: "missing closing curly bracket",
+				src:  `type Foo interface{`,
+				exp:  "unable to find method definition",
+			},
+			{
+				name: "missing closing round bracket",
+				src:  `type Foo interface{ Act(a string, }`,
+				exp:  "unable to find method definition",
+			},
+		} {
+			t.Run(tc.name, func(t *testing.T) {
+				p := newParser([]byte(tc.src))
+
+				_, err := p.parse()
+				if err == nil {
+					t.Fatalf("missing expected error when calling parse parser with: '%s'", tc.src)
+				}
+				if !strings.Contains(err.Error(), tc.exp) {
+					t.Errorf("expected an error message containing '%s' but got '%s'", tc.exp, err.Error())
+				}
+			})
+		}
+	})
 }

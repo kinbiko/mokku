@@ -45,20 +45,17 @@ func newParser(src []byte) *parser {
 }
 
 func (p *parser) parse() (*targetInterface, error) {
-	target := targetInterface{}
-
 	name, err := p.lookForItfcName()
 	if err != nil {
 		return nil, fmt.Errorf("unable to find interface name in '%s':%w", p.src, err)
 	}
-	target.name = name
 
 	methods, err := p.lookForMethods()
 	if err != nil {
 		return nil, err
 	}
-	target.methods = methods
-	return &target, nil
+
+	return &targetInterface{name: name, methods: methods}, nil
 }
 
 func (p *parser) lookForItfcName() (string, error) {
@@ -84,11 +81,11 @@ func (p *parser) lookForItfcName() (string, error) {
 func (p *parser) lookForMethods() ([]*method, error) {
 	for {
 		_, tok, _ := p.s.Scan()
-		if tok == token.LBRACE {
-			break
-		}
 		if tok == token.EOF {
 			return nil, errors.New("unable to find method definition")
+		}
+		if tok == token.LBRACE {
+			break
 		}
 	}
 
@@ -96,6 +93,9 @@ func (p *parser) lookForMethods() ([]*method, error) {
 
 	for {
 		_, tok, lit := p.s.Scan()
+		if tok == token.EOF {
+			return nil, errors.New("unable to find method definition")
+		}
 		if tok == token.RBRACE {
 			break
 		}
@@ -107,9 +107,6 @@ func (p *parser) lookForMethods() ([]*method, error) {
 			}
 			methods = append(methods, m)
 		}
-		if tok == token.EOF {
-			return nil, errors.New("unable to find method definition")
-		}
 	}
 	return methods, nil
 }
@@ -120,7 +117,15 @@ func (p *parser) lookForMethod(methodName string) (*method, error) {
 	for {
 		_, tok, lit := p.s.Scan()
 		switch tok {
-		case token.COMMA, token.LPAREN, token.RPAREN, token.LBRACK, token.RBRACK, token.LBRACE, token.RBRACE, token.PERIOD:
+		case token.COMMA,
+			token.LPAREN,
+			token.RPAREN,
+			token.LBRACK,
+			token.RBRACK,
+			token.LBRACE,
+			token.RBRACE,
+			token.PERIOD,
+			token.ELLIPSIS:
 			collect = append(collect, tok.String())
 		case token.EOF:
 			return nil, fmt.Errorf("unable to parse method definition for '%s'", methodName)
@@ -135,5 +140,9 @@ func (p *parser) lookForMethod(methodName string) (*method, error) {
 		}
 	}
 
+	// Joining with a " " in so that the tokeniser can differentiate between
+	// "a string" and "astring". Granted, this isn't going to be nice to read,
+	// but the idea is to run gofmt (or goimports) later down the line, to
+	// enforce standard go syntax.
 	return &method{name: methodName, signature: strings.Join(collect, " ")}, nil
 }
