@@ -1,6 +1,8 @@
 package mokku
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestTemplate(t *testing.T) {
 	for _, tc := range []struct {
@@ -23,6 +25,7 @@ type Mock struct {
 type FooBarMock struct { 
 	ActFunc func( ) error
 	DoStuffFunc func( a , b string, other ... interface{} ) ( int , error )
+	NoReturnParamFunc func( a string )
 }
 
 func (m *FooBarMock) Act( ) error {
@@ -37,13 +40,20 @@ func (m *FooBarMock) DoStuff( a , b string, other ... interface{} ) ( int , erro
 	}
 	return m.DoStuffFunc( a , b , other ... )
 }
+func (m *FooBarMock) NoReturnParam( a string ) {
+	if m.NoReturnParamFunc == nil {
+		panic("unexpected call to NoReturnParam")
+	}
+	m.NoReturnParamFunc( a )
+}
 `,
 
 			in: &targetInterface{
 				TypeName: "FooBar",
 				Methods: []*method{
-					{Name: "Act", Signature: "( ) error", OrderedParams: "( )"},
-					{Name: "DoStuff", Signature: "( a , b string, other ... interface{} ) ( int , error )", OrderedParams: "( a , b , other ... )"},
+					{Name: "Act", Signature: "( ) error", OrderedParams: "( )", HasReturn: true},
+					{Name: "DoStuff", Signature: "( a , b string, other ... interface{} ) ( int , error )", OrderedParams: "( a , b , other ... )", HasReturn: true},
+					{Name: "NoReturnParam", Signature: "( a string )", OrderedParams: "( a )", HasReturn: false},
 				},
 			},
 		},

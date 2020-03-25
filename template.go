@@ -14,7 +14,7 @@ type {{.TypeName}}Mock struct { {{ range .Methods }}
 	if m.{{$val.Name}}Func == nil {
 		panic("unexpected call to {{$val.Name}}")
 	}
-	return m.{{$val.Name}}Func{{$val.OrderedParams}}
+	{{if $val.HasReturn}}return {{ end }}m.{{$val.Name}}Func{{$val.OrderedParams}}
 }
 {{ end }}{{ end }}`
 
@@ -25,7 +25,7 @@ func mockFromTemplate(defn *targetInterface) ([]byte, error) {
 	}
 
 	var buf bytes.Buffer
-	if err = tmpl.Execute(&buf, defn); err != nil {
+	if err := tmpl.Execute(&buf, defn); err != nil {
 		return nil, err
 	}
 	return buf.Bytes(), nil

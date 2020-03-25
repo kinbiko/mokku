@@ -24,6 +24,8 @@ type method struct {
 	// e.g. '( foo , bar )', used for passing parameters from the mock's method
 	// to the mock struct's func property
 	OrderedParams string
+
+	HasReturn bool
 }
 
 func (m *method) String() string {
@@ -149,10 +151,19 @@ func (p *parser) lookForMethod(methodName string) (*method, error) {
 	// but the idea is to run gofmt (or goimports) later down the line, to
 	// enforce standard go syntax.
 	sig := strings.Join(collect, " ")
+	orderedParams := parseArgs(sig)
+	// TODO: clean up this ugly hack
+	ind := strings.Index(sig, ")")
+	hasReturn := false
+	if ind > 0 {
+		hasReturn = len(sig[ind:]) > 2
+	}
+
 	return &method{
 		Name:          methodName,
 		Signature:     sig,
-		OrderedParams: parseArgs(sig),
+		OrderedParams: orderedParams,
+		HasReturn:     hasReturn,
 	}, nil
 }
 

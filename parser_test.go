@@ -28,7 +28,7 @@ func TestParser(t *testing.T) {
 			}`,
 			exp: &targetInterface{
 				TypeName: "Bar",
-				Methods:  []*method{{"Act", "( )", "( )"}},
+				Methods:  []*method{{"Act", "( )", "( )", false}},
 			},
 		},
 		{
@@ -39,7 +39,7 @@ func TestParser(t *testing.T) {
 				}`,
 			exp: &targetInterface{
 				TypeName: "FooBar",
-				Methods:  []*method{{"Act", "( )", "( )"}, {"Do", "( )", "( )"}},
+				Methods:  []*method{{"Act", "( )", "( )", false}, {"Do", "( )", "( )", false}},
 			},
 		},
 		{
@@ -49,7 +49,7 @@ func TestParser(t *testing.T) {
 				}`,
 			exp: &targetInterface{
 				TypeName: "FooBar",
-				Methods:  []*method{{"Act", `( x string )`, "( x )"}},
+				Methods:  []*method{{"Act", `( x string )`, "( x )", false}},
 			},
 		},
 		{
@@ -59,7 +59,7 @@ func TestParser(t *testing.T) {
 				}`,
 			exp: &targetInterface{
 				TypeName: "FooBar",
-				Methods:  []*method{{"Act", `( x , y string , z chan [ ] struct { a [ 0 ] int } )`, "( x , y , z )"}},
+				Methods:  []*method{{"Act", `( x , y string , z chan [ ] struct { a [ 0 ] int } )`, "( x , y , z )", false}},
 			},
 		},
 
@@ -70,7 +70,7 @@ func TestParser(t *testing.T) {
 			}`,
 			exp: &targetInterface{
 				TypeName: "FooBar",
-				Methods:  []*method{{"Act", `( ) error`, "( )"}},
+				Methods:  []*method{{"Act", `( ) error`, "( )", true}},
 			},
 		},
 
@@ -84,9 +84,9 @@ func TestParser(t *testing.T) {
 			exp: &targetInterface{
 				TypeName: "GoodLuck",
 				Methods: []*method{
-					{"First", `( )`, "( )"},
-					{"Second", `( ctx context . Context , _ [ ] fish , s , ss string ) ( error , int , chan struct { } )`, "( ctx , _ , s , ss )"}, // TODO: figure out what the default value is likely to be for _s as _ is useless as params.
-					{"Third", `( vararg ... map [ string ] interface { } ) ( a , b string , e error )`, "( vararg ... )"},
+					{"First", `( )`, "( )", false},
+					{"Second", `( ctx context . Context , _ [ ] fish , s , ss string ) ( error , int , chan struct { } )`, "( ctx , _ , s , ss )", true}, // TODO: figure out what the default value is likely to be for _s as _ is useless as params.
+					{"Third", `( vararg ... map [ string ] interface { } ) ( a , b string , e error )`, "( vararg ... )", true},
 				},
 			},
 		},
@@ -125,6 +125,10 @@ func TestParser(t *testing.T) {
 				expParams, gotParams := tc.exp.Methods[i].OrderedParams, got.Methods[i].OrderedParams
 				if expParams != gotParams {
 					t.Errorf("expected method of index %d to had different ordered params:\nexp: %s\nwas: %s", i, expParams, gotParams)
+				}
+				expHasReturn, gotHasReturn := tc.exp.Methods[i].HasReturn, got.Methods[i].HasReturn
+				if expHasReturn != gotHasReturn {
+					t.Errorf("expected method of index %d to had different HasReturn:\nexp: %v\nwas: %v", i, expHasReturn, gotHasReturn)
 				}
 			}
 		})
