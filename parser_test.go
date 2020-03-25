@@ -28,7 +28,7 @@ func TestParser(t *testing.T) {
 			}`,
 			exp: &targetInterface{
 				name:    "Bar",
-				methods: []*method{{"Act", "( )"}},
+				methods: []*method{{"Act", "( )", "( )"}},
 			},
 		},
 		{
@@ -39,7 +39,7 @@ func TestParser(t *testing.T) {
 				}`,
 			exp: &targetInterface{
 				name:    "FooBar",
-				methods: []*method{{"Act", "( )"}, {"Do", "( )"}},
+				methods: []*method{{"Act", "( )", "( )"}, {"Do", "( )", "( )"}},
 			},
 		},
 		{
@@ -49,7 +49,7 @@ func TestParser(t *testing.T) {
 				}`,
 			exp: &targetInterface{
 				name:    "FooBar",
-				methods: []*method{{name: "Act", signature: `( x string )`}},
+				methods: []*method{{"Act", `( x string )`, "( x )"}},
 			},
 		},
 		{
@@ -59,7 +59,7 @@ func TestParser(t *testing.T) {
 				}`,
 			exp: &targetInterface{
 				name:    "FooBar",
-				methods: []*method{{name: "Act", signature: `( x , y string , z chan [ ] struct { a [ 0 ] int } )`}},
+				methods: []*method{{"Act", `( x , y string , z chan [ ] struct { a [ 0 ] int } )`, "( x , y , z )"}},
 			},
 		},
 
@@ -70,7 +70,7 @@ func TestParser(t *testing.T) {
 			}`,
 			exp: &targetInterface{
 				name:    "FooBar",
-				methods: []*method{{name: "Act", signature: `( ) error`}},
+				methods: []*method{{"Act", `( ) error`, "( )"}},
 			},
 		},
 
@@ -84,9 +84,9 @@ func TestParser(t *testing.T) {
 			exp: &targetInterface{
 				name: "GoodLuck",
 				methods: []*method{
-					{name: "First", signature: `( )`},
-					{name: "Second", signature: `( ctx context . Context , _ [ ] fish , s , ss string ) ( error , int , chan struct { } )`},
-					{name: "Third", signature: `( vararg ... map [ string ] interface { } ) ( a , b string , e error )`},
+					{"First", `( )`, "( )"},
+					{"Second", `( ctx context . Context , _ [ ] fish , s , ss string ) ( error , int , chan struct { } )`, "( ctx , _ , s , ss )"}, // TODO: figure out what the default value is likely to be for _s as _ is useless as params.
+					{"Third", `( vararg ... map [ string ] interface { } ) ( a , b string , e error )`, "( vararg ... )"},
 				},
 			},
 		},
@@ -121,6 +121,10 @@ func TestParser(t *testing.T) {
 				expSignature, gotSignature := tc.exp.methods[i].signature, got.methods[i].signature
 				if expSignature != gotSignature {
 					t.Errorf("expected method of index %d to had different signatures:\nexp: %s\nwas: %s", i, expSignature, gotSignature)
+				}
+				expParams, gotParams := tc.exp.methods[i].orderedParams, got.methods[i].orderedParams
+				if expParams != gotParams {
+					t.Errorf("expected method of index %d to had different ordered params:\nexp: %s\nwas: %s", i, expParams, gotParams)
 				}
 			}
 		})
@@ -161,4 +165,24 @@ func TestParser(t *testing.T) {
 			})
 		}
 	})
+}
+
+func TestOrderedParamsFromSignature(t *testing.T) {
+	for _, tc := range []struct{ name, sig, exp string }{
+		{"not a method", "", ""},
+		{"niladic", "( )", "( )"},
+		{"niladic with return param", "( ) error", "( )"},
+		{"niladic with return params", "( ) ( int, error )", "( )"},
+		{"monadic", "( a string )", "( a )"},
+		{"dyadic with first parameter type absent", "( a, b string )", "( a , b )"},
+		{"dyadic", "( a int, b string )", "( a , b )"},
+		{"triadic with only last parameter type present", "( a, b, c string )", "( a , b , c )"},
+		{"complex case", "( a map[int]interface{}, b chan []struct{}, c ...string )", "( a , b , c ... )"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := parseArgs(tc.sig); got != tc.exp {
+				t.Errorf("expected '%s' but got '%s'", tc.exp, got)
+			}
+		})
+	}
 }

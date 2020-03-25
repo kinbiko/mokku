@@ -20,6 +20,10 @@ type method struct {
 	// extracting it all as a string to keep things simple while still being
 	// able flexible.
 	signature string
+
+	// e.g. '( foo , bar )', used for passing parameters from the mock's method
+	// to the mock struct's func property
+	orderedParams string
 }
 
 func (m *method) String() string {
@@ -144,5 +148,57 @@ func (p *parser) lookForMethod(methodName string) (*method, error) {
 	// "a string" and "astring". Granted, this isn't going to be nice to read,
 	// but the idea is to run gofmt (or goimports) later down the line, to
 	// enforce standard go syntax.
-	return &method{name: methodName, signature: strings.Join(collect, " ")}, nil
+	sig := strings.Join(collect, " ")
+	return &method{
+		name:          methodName,
+		signature:     sig,
+		orderedParams: parseArgs(sig),
+	}, nil
+}
+
+func parseArgs(src string) string {
+	if src == "" {
+		// in this case its likely a case of having an embedded interface, and
+		// thus args don't make sense.
+		return ""
+	}
+
+	sig := src[:strings.Index(src, ")")+1]
+	if sig == "( )" {
+		return sig
+	}
+
+	var (
+		collect    = []string{}
+		addNext    = true
+		hasVarargs = false
+
+		pp = newParser([]byte(sig))
+	)
+
+	for {
+		_, tok, lit := pp.s.Scan()
+		if addNext {
+			if lit == "" {
+				lit = tok.String()
+			}
+			collect = append(collect, lit)
+		}
+		switch tok {
+		case token.COMMA:
+			collect = append(collect, tok.String())
+			addNext = true
+		case token.ELLIPSIS:
+			hasVarargs = true
+		case token.LPAREN:
+			addNext = true
+		case token.EOF:
+			if hasVarargs {
+				collect = append(collect, "...")
+			}
+			return strings.Join(append(collect, ")"), " ")
+		default:
+			addNext = false
+		}
+	}
 }
