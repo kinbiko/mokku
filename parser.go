@@ -9,25 +9,25 @@ import (
 )
 
 type targetInterface struct {
-	name    string
-	methods []*method
+	TypeName string
+	Methods  []*method
 }
 
 type method struct {
-	name string
+	Name string
 
 	// e.g. '( foo , bar string ) ( a int , err error )'
 	// extracting it all as a string to keep things simple while still being
 	// able flexible.
-	signature string
+	Signature string
 
 	// e.g. '( foo , bar )', used for passing parameters from the mock's method
 	// to the mock struct's func property
-	orderedParams string
+	OrderedParams string
 }
 
 func (m *method) String() string {
-	return fmt.Sprintf("<name: %s, signature: %s>", m.name, m.signature)
+	return fmt.Sprintf("<Name: %s, Signature: %s>", m.Name, m.Signature)
 }
 
 type parser struct {
@@ -59,7 +59,7 @@ func (p *parser) parse() (*targetInterface, error) {
 		return nil, err
 	}
 
-	return &targetInterface{name: name, methods: methods}, nil
+	return &targetInterface{TypeName: name, Methods: methods}, nil
 }
 
 func (p *parser) lookForItfcName() (string, error) {
@@ -150,9 +150,9 @@ func (p *parser) lookForMethod(methodName string) (*method, error) {
 	// enforce standard go syntax.
 	sig := strings.Join(collect, " ")
 	return &method{
-		name:          methodName,
-		signature:     sig,
-		orderedParams: parseArgs(sig),
+		Name:          methodName,
+		Signature:     sig,
+		OrderedParams: parseArgs(sig),
 	}, nil
 }
 

@@ -14,7 +14,7 @@ func TestParser(t *testing.T) {
 		{
 			name: "named empty interface",
 			src:  `type Foo interface{}`,
-			exp:  &targetInterface{name: "Foo"},
+			exp:  &targetInterface{TypeName: "Foo"},
 		},
 		{
 			name: "anonymous empty interface",
@@ -27,8 +27,8 @@ func TestParser(t *testing.T) {
 				Act()
 			}`,
 			exp: &targetInterface{
-				name:    "Bar",
-				methods: []*method{{"Act", "( )", "( )"}},
+				TypeName: "Bar",
+				Methods:  []*method{{"Act", "( )", "( )"}},
 			},
 		},
 		{
@@ -38,8 +38,8 @@ func TestParser(t *testing.T) {
 					Do()
 				}`,
 			exp: &targetInterface{
-				name:    "FooBar",
-				methods: []*method{{"Act", "( )", "( )"}, {"Do", "( )", "( )"}},
+				TypeName: "FooBar",
+				Methods:  []*method{{"Act", "( )", "( )"}, {"Do", "( )", "( )"}},
 			},
 		},
 		{
@@ -48,8 +48,8 @@ func TestParser(t *testing.T) {
 					Act(x string)
 				}`,
 			exp: &targetInterface{
-				name:    "FooBar",
-				methods: []*method{{"Act", `( x string )`, "( x )"}},
+				TypeName: "FooBar",
+				Methods:  []*method{{"Act", `( x string )`, "( x )"}},
 			},
 		},
 		{
@@ -58,8 +58,8 @@ func TestParser(t *testing.T) {
 					Act(x, y string, z chan []struct{a [0]int})
 				}`,
 			exp: &targetInterface{
-				name:    "FooBar",
-				methods: []*method{{"Act", `( x , y string , z chan [ ] struct { a [ 0 ] int } )`, "( x , y , z )"}},
+				TypeName: "FooBar",
+				Methods:  []*method{{"Act", `( x , y string , z chan [ ] struct { a [ 0 ] int } )`, "( x , y , z )"}},
 			},
 		},
 
@@ -69,8 +69,8 @@ func TestParser(t *testing.T) {
 				Act() error
 			}`,
 			exp: &targetInterface{
-				name:    "FooBar",
-				methods: []*method{{"Act", `( ) error`, "( )"}},
+				TypeName: "FooBar",
+				Methods:  []*method{{"Act", `( ) error`, "( )"}},
 			},
 		},
 
@@ -82,8 +82,8 @@ func TestParser(t *testing.T) {
 				Third(vararg ...map[string]interface{}) (a, b string, e error)
 			}`,
 			exp: &targetInterface{
-				name: "GoodLuck",
-				methods: []*method{
+				TypeName: "GoodLuck",
+				Methods: []*method{
 					{"First", `( )`, "( )"},
 					{"Second", `( ctx context . Context , _ [ ] fish , s , ss string ) ( error , int , chan struct { } )`, "( ctx , _ , s , ss )"}, // TODO: figure out what the default value is likely to be for _s as _ is useless as params.
 					{"Third", `( vararg ... map [ string ] interface { } ) ( a , b string , e error )`, "( vararg ... )"},
@@ -101,28 +101,28 @@ func TestParser(t *testing.T) {
 				t.Fatal("expected non-nil parsed result but was nil")
 			}
 
-			if got.name != tc.exp.name {
-				t.Errorf("expected name '%s' but got '%s'", tc.exp.name, got.name)
+			if got.TypeName != tc.exp.TypeName {
+				t.Errorf("expected name '%s' but got '%s'", tc.exp.TypeName, got.TypeName)
 			}
 
-			for i := range tc.exp.methods {
-				expLen, gotLen := len(tc.exp.methods), len(got.methods)
+			for i := range tc.exp.Methods {
+				expLen, gotLen := len(tc.exp.Methods), len(got.Methods)
 				if expLen != gotLen {
 					t.Errorf("expected %d methods but got %d", expLen, gotLen)
-					t.Errorf("exp: '%+v'", tc.exp.methods)
-					t.Errorf("got: '%+v'", got.methods)
+					t.Errorf("exp: '%+v'", tc.exp.Methods)
+					t.Errorf("got: '%+v'", got.Methods)
 					break
 				}
 
-				expName, gotName := tc.exp.methods[i].name, got.methods[i].name
+				expName, gotName := tc.exp.Methods[i].Name, got.Methods[i].Name
 				if expName != gotName {
 					t.Errorf("expected method of index %d to have name '%s' but was '%s'", i, expName, gotName)
 				}
-				expSignature, gotSignature := tc.exp.methods[i].signature, got.methods[i].signature
+				expSignature, gotSignature := tc.exp.Methods[i].Signature, got.Methods[i].Signature
 				if expSignature != gotSignature {
 					t.Errorf("expected method of index %d to had different signatures:\nexp: %s\nwas: %s", i, expSignature, gotSignature)
 				}
-				expParams, gotParams := tc.exp.methods[i].orderedParams, got.methods[i].orderedParams
+				expParams, gotParams := tc.exp.Methods[i].OrderedParams, got.Methods[i].OrderedParams
 				if expParams != gotParams {
 					t.Errorf("expected method of index %d to had different ordered params:\nexp: %s\nwas: %s", i, expParams, gotParams)
 				}
