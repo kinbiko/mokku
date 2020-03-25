@@ -13,7 +13,7 @@ linters-settings:
     local-prefixes: github.com/kinbiko
   gocyclo:
     # minimal code complexity to report
-    min-complexity: 10
+    min-complexity: 12
   dupl:
     # tokens count to trigger issue, 150 by default
     threshold: 150

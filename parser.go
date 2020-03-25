@@ -157,13 +157,13 @@ func (p *parser) lookForMethod(methodName string) (*method, error) {
 }
 
 func parseArgs(src string) string {
-	if string(src) == "" {
+	if src == "" {
 		// in this case its likely a case of having an embedded interface, and
 		// thus args don't make sense.
 		return ""
 	}
 
-	sig := string(src[:strings.Index(string(src), ")")+1])
+	sig := src[:strings.Index(src, ")")+1]
 	if sig == "( )" {
 		return sig
 	}
