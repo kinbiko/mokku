@@ -19,7 +19,7 @@ $ go get github.com/kinbiko/mokku/cmd/mokku
 
 ## Usage
 
-<!-- TODO: GIF of this tool being used -->
+[![asciicast](https://asciinema.org/a/i4zBQ3UPkQ7d7KB0kKtHpFdzW.svg)](https://asciinema.org/a/i4zBQ3UPkQ7d7KB0kKtHpFdzW)
 
 ```sh
 # Copy the interface
