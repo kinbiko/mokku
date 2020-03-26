@@ -19,15 +19,15 @@ $ go get github.com/kinbiko/mokku/cmd/mokku
 
 ## Usage
 
-[![demo](mokku.gif)](https://asciinema.org/a/i4zBQ3UPkQ7d7KB0kKtHpFdzW?speed=2)
-
 ```sh
 # Copy the interface
 $ mokku
 # Paste the mock
 ```
 
-That's it.
+That's it. Below is an example of how to use `mokku` within vim.
+
+[![demo](mokku.gif)](https://asciinema.org/a/i4zBQ3UPkQ7d7KB0kKtHpFdzW?speed=2)
 
 ### Using the generated code
 
