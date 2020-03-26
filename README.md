@@ -11,6 +11,16 @@
 [![Go Documentation](http://img.shields.io/badge/godoc-documentation-blue.svg?style=flat)](https://pkg.go.dev/github.com/kinbiko/mokku?tab=doc)
 [![License](https://img.shields.io/github/license/kinbiko/mokku.svg?style=flat)](https://github.com/kinbiko/mokku/blob/master/LICENSE)
 
+A clipboard-based mocking framework for Go that gets out of your way.
+
+This tool has been built with inspiration lovingly taken from [`Moq`](https://github.com/matryer/moq), and fuelled by the frustration of using [`gomock`](https://github.com/golang/mock).
+
+Key ideas:
+
+- Invisible: No need to introduce dependencies or `//go:generate` directives in your codebase.
+- Integration friendly: Easy to integrate in your workflow, regardless of editor.
+- File/package agnostic: `mokku` doesn't care where exactly your code lives on your system or even whether it compiles yet.
+
 ## Installation
 
 ```sh
@@ -59,16 +69,6 @@ func RegisterUser(userName string, repo UserRepository) {
 	// ... Code that includes a call to 'repo.Create(userName)'
 }
 ```
-
-## Philosophy
-
-This tool has been built with inspiration lovingly taken from [`Moq`](github.com/matryer/moq), and fuelled by the frustration of using [`gomock`](https://github.com/golang/mock).
-
-Key ideas:
-
-- Invisible: No need to introduce dependencies or `//go:generate` directives in your codebase.
-- Integration friendly: Easy to integrate in your workflow, regardless of editor.
-- File/package agnostic: `mokku` doesn't care where exactly it lives on your system or even whether the copied code compiles yet.
 
 ## Contributing
 
