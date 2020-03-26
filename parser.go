@@ -214,6 +214,9 @@ func parseArgs(src string) string {
 	}
 }
 
+// scan reads the next token to scan.
+// The input argument only serves as a code-base location for debugging, if
+// necessary.
 func (p *parser) scan(_ int) (token.Token, string) {
 	_, tok, lit := p.s.Scan()
 	// NOTE: this is a good spot to do fmt.Println debugging if needed
