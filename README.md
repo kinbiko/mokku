@@ -1,6 +1,15 @@
-<!-- logo -->
+# Mokku
 
-<!-- badges -->
+<!-- TODO: logo instead of H1-->
+
+<!-- TODO: go awesome badge -->
+<!-- TODO: coverage badge -->
+
+[![Build Status](https://github.com/kinbiko/mokku/workflows/Go/badge.svg)](https://github.com/kinbiko/mokku/actions)
+[![Go Report Card](https://goreportcard.com/badge/github.com/kinbiko/mokku)](https://goreportcard.com/report/github.com/kinbiko/mokku)
+[![Latest version](https://img.shields.io/github/tag/kinbiko/mokku.svg?label=latest%20version&style=flat)](https://github.com/kinbiko/mokku/releases)
+[![Go Documentation](http://img.shields.io/badge/godoc-documentation-blue.svg?style=flat)](https://pkg.go.dev/github.com/kinbiko/mokku?tab=doc)
+[![License](https://img.shields.io/github/license/kinbiko/mokku.svg?style=flat)](https://github.com/kinbiko/mokku/blob/master/LICENSE)
 
 ## Installation
 
@@ -10,7 +19,7 @@ $ go get github.com/kinbiko/mokku/cmd/mokku
 
 ## Usage
 
-<!-- GIF of this tool being used -->
+<!-- TODO: GIF of this tool being used -->
 
 ```sh
 # Copy the interface

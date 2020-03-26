@@ -12,7 +12,7 @@ import (
 const usage = `Usage:
 1. Copy the interface you want to mock
 2. Run 'mokku'
-3. Paste the mocked implementation that has been written to your clipboard `
+3. Paste the mocked implementation that has been written to your clipboard`
 
 func main() {
 	flag.Usage = func() { fmt.Println(usage) }
