@@ -7,7 +7,7 @@ import (
 )
 
 func TestIntegration(t *testing.T) {
-	got, err := mokku.Mock([]byte(`
+	got, err := mokku.Mock(mokku.Config{}, []byte(`
     type Foo interface {
 		Act()
 	}`))
