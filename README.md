@@ -73,7 +73,7 @@ func RegisterUser(userName string, repo UserRepository) {
 ## Contributing
 
 Please raise an issue to discuss any changes you'd like to make to this project.
-If you wish to contribute, but need some ideas, please check out the [GitHub project for this repository](github.com/kinbiko/mokku/projects/2).
+If you wish to contribute, but need some ideas, please check out the [GitHub project for this repository](https://github.com/kinbiko/mokku/projects/2).
 
 ## Gratitude
 
