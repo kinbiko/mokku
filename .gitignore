@@ -19,3 +19,5 @@ design/
 
 main
 ./mokku
+
+./cmd/mokku/manual_out.go.txt

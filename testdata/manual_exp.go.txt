@@ -1,0 +1,33 @@
+
+type CalculatorMock struct {
+	AddFunc      func(a, b int) int
+	SubtractFunc func(a int, b int) int
+	MultiplyFunc func(a, b int) int
+	DivideFunc   func(a int, b int) (int, error)
+}
+
+func (m *CalculatorMock) Add(a, b int) int {
+	if m.AddFunc == nil {
+		panic("unexpected call to Add")
+	}
+	return m.AddFunc(a, b)
+}
+func (m *CalculatorMock) Subtract(a int, b int) int {
+	if m.SubtractFunc == nil {
+		panic("unexpected call to Subtract")
+	}
+	return m.SubtractFunc(a, b)
+}
+func (m *CalculatorMock) Multiply(a, b int) int {
+	if m.MultiplyFunc == nil {
+		panic("unexpected call to Multiply")
+	}
+	return m.MultiplyFunc(a, b)
+}
+func (m *CalculatorMock) Divide(a int, b int) (int, error) {
+	if m.DivideFunc == nil {
+		panic("unexpected call to Divide")
+	}
+	return m.DivideFunc(a, b)
+}
+
