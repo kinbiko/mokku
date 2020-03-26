@@ -1,21 +1,17 @@
 package mokku
 
-import "context"
+import "go/format"
 
 // Mock creates the sourcecode of a mock implementation of the interface
 // sourcecode defined in the given byte array.
-func Mock(ctx context.Context, data []byte) ([]byte, error) {
-	// TODO: hardcoded for now
-	return []byte(`
-// FooMock is a mock implementation of Foo.
-type FooMock struct {
-	ActImpl func()
-}
-
-func (f *FooMock) Act() {
-	if f.ActImpl == nil {
-		panic("unexpected call to Act")
+func Mock(src []byte) ([]byte, error) {
+	target, err := newParser(src).parse()
+	if err != nil {
+		return nil, err
 	}
-	f.ActImpl()
-}`), nil
+	mft, err := mockFromTemplate(target)
+	if err != nil {
+		return nil, err
+	}
+	return format.Source(mft)
 }
