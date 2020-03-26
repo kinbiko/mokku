@@ -1,0 +1,13 @@
+// How to do the manual test:
+// 1. Copy the below interface to your clipboard
+// 2. cd into the cmd/mokku/ directory and run go install
+// 3. paste the contents of your clipboard into testdata/manual_out.go.txt (note: this file is gitignored)
+// 4. diff the manual_out.go.txt and manual_exp.go.txt with your favourite diff tool (e.g. vimdiff).
+// 5. check that the files are identical
+
+type Calculator interface {
+    Add(a, b int) int
+    Subtract(a int, b int) int
+    Multiply(a, b int) int
+    Divide(a int, b int) (int, error)
+}

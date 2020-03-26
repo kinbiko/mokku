@@ -19,3 +19,5 @@ design/
 
 main
 ./mokku
+
+./testdata/manual_out.go.txt
