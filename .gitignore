@@ -20,4 +20,4 @@ design/
 main
 ./mokku
 
-./cmd/mokku/manual_out.go.txt
+./testdata/manual_out.go.txt
