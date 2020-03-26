@@ -66,14 +66,14 @@ func (p *parser) parse() (*targetInterface, error) {
 
 func (p *parser) lookForItfcName() (string, error) {
 	for {
-		_, tok, _ := p.s.Scan()
+		tok, _ := p.scan(1)
 		switch tok {
 		case token.EOF:
 			return "", errors.New("unable to find interface declaration")
 		case token.INTERFACE:
 			return "", nil // Treat as an anonymous interface
 		case token.TYPE: // <type> Foo interface
-			_, tok, lit := p.s.Scan()
+			tok, lit := p.scan(2)
 			if tok == token.IDENT { // type <Foo> interface
 				_, tok, _ := p.s.Scan()
 				if tok == token.INTERFACE { // type Foo <interface>
@@ -86,9 +86,9 @@ func (p *parser) lookForItfcName() (string, error) {
 
 func (p *parser) lookForMethods() ([]*method, error) {
 	for {
-		_, tok, _ := p.s.Scan()
+		tok, _ := p.scan(3)
 		if tok == token.EOF {
-			return nil, errors.New("unable to find method definition")
+			return nil, errors.New("unable to find method definitions for interface")
 		}
 		if tok == token.LBRACE {
 			break
@@ -98,9 +98,9 @@ func (p *parser) lookForMethods() ([]*method, error) {
 	methods := []*method{}
 
 	for {
-		_, tok, lit := p.s.Scan()
+		tok, lit := p.scan(4)
 		if tok == token.EOF {
-			return nil, errors.New("unable to find method definition")
+			return nil, errors.New("unable to find method definition after '{'")
 		}
 		if tok == token.RBRACE {
 			break
@@ -121,7 +121,7 @@ func (p *parser) lookForMethod(methodName string) (*method, error) {
 	collect := []string{}
 
 	for {
-		_, tok, lit := p.s.Scan()
+		tok, lit := p.scan(5)
 		switch tok {
 		case token.COMMA,
 			token.LPAREN,
@@ -188,7 +188,7 @@ func parseArgs(src string) string {
 	)
 
 	for {
-		_, tok, lit := pp.s.Scan()
+		tok, lit := pp.scan(6)
 		if addNext {
 			if lit == "" {
 				lit = tok.String()
@@ -212,4 +212,13 @@ func parseArgs(src string) string {
 			addNext = false
 		}
 	}
+}
+
+// scan reads the next token to scan.
+// The input argument only serves as a code-base location for debugging, if
+// necessary.
+func (p *parser) scan(_ int) (token.Token, string) {
+	_, tok, lit := p.s.Scan()
+	// NOTE: this is a good spot to do fmt.Println debugging if needed
+	return tok, lit
 }

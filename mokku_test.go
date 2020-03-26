@@ -1,29 +1,32 @@
 package mokku_test
 
 import (
-	"context"
 	"testing"
 
 	"github.com/kinbiko/mokku"
 )
 
 func TestIntegration(t *testing.T) {
-	got, err := mokku.Mock(context.Background(), []byte(`type Foo interface{Act()}`))
+	got, err := mokku.Mock([]byte(`
+    type Foo interface {
+		Act()
+	}`))
 	if err != nil {
 		t.Fatalf("unexpected error '%s'", err.Error())
 	}
+
 	exp := `
-// FooMock is a mock implementation of Foo.
 type FooMock struct {
-	ActImpl func()
+	ActFunc func()
 }
 
-func (f *FooMock) Act() {
-	if f.ActImpl == nil {
+func (m *FooMock) Act() {
+	if m.ActFunc == nil {
 		panic("unexpected call to Act")
 	}
-	f.ActImpl()
-}`
+	m.ActFunc()
+}
+`
 	if string(got) != exp {
 		t.Errorf("unexpected mock created:\n%s\n\nexpected:\n%s", got, exp)
 	}
