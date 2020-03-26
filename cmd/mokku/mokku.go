@@ -23,7 +23,7 @@ func main() {
 		errorOut(err)
 	}
 
-	mock, err := mokku.Mock([]byte(s))
+	mock, err := mokku.Mock(mokku.Config{}, []byte(s))
 	if err != nil {
 		errorOut(err)
 	}
