@@ -1,6 +1,6 @@
 # Mokku
 
-<!-- TODO: logo instead of H1-->
+![logo](./logo.png)
 
 <!-- TODO: go awesome badge -->
 <!-- TODO: coverage badge -->
