@@ -131,6 +131,7 @@ func (p *parser) lookForMethod(methodName string) (*method, error) {
 			token.LBRACE,
 			token.RBRACE,
 			token.PERIOD,
+			token.MUL, // pointer
 			token.ELLIPSIS:
 			collect = append(collect, tok.String())
 		case token.EOF:

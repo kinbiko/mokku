@@ -75,6 +75,17 @@ func TestParser(t *testing.T) {
 		},
 
 		{
+			name: "single method with no input parameters and pointer return parameter",
+			src: `type FooBar interface {
+				Act() *foo
+			}`,
+			exp: &targetInterface{
+				TypeName: "FooBar",
+				Methods:  []*method{{"Act", `( ) * foo`, "( )", true}},
+			},
+		},
+
+		{
 			name: "mega complex example",
 			src: `type GoodLuck interface {
 				First()
@@ -85,7 +96,7 @@ func TestParser(t *testing.T) {
 				TypeName: "GoodLuck",
 				Methods: []*method{
 					{"First", `( )`, "( )", false},
-					{"Second", `( ctx context . Context , _ [ ] fish , s , ss string ) ( error , int , chan struct { } )`, "( ctx , _ , s , ss )", true}, // TODO: figure out what the default value is likely to be for _s as _ is useless as params.
+					{"Second", `( ctx context . Context , _ [ ] * fish , s , ss string ) ( error , int , chan struct { } )`, "( ctx , _ , s , ss )", true}, // TODO: figure out what the default value is likely to be for _s as _ is useless as params.
 					{"Third", `( vararg ... map [ string ] interface { } ) ( a , b string , e error )`, "( vararg ... )", true},
 				},
 			},
