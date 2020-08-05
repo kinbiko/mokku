@@ -4,10 +4,11 @@ import (
 	"testing"
 
 	"github.com/kinbiko/mokku"
+	"github.com/kinbiko/mokku/templates"
 )
 
 func TestIntegration(t *testing.T) {
-	got, err := mokku.Mock(mokku.Config{}, []byte(`
+	got, err := mokku.Mock(mokku.Config{TemplateStr: templates.GetDefault()}, []byte(`
     type Foo interface {
 		Act()
 	}`))

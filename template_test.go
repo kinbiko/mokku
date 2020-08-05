@@ -2,12 +2,19 @@ package mokku
 
 import (
 	"testing"
+
+	"github.com/kinbiko/mokku/templates"
 )
 
 func TestTemplate(t *testing.T) {
+	defaultTemplate := templates.GetDefault()
+	type args struct {
+		defn *targetInterface
+		templateStr string
+	}
 	for _, tc := range []struct {
 		name string
-		in   *targetInterface
+		args args
 		exp  string
 	}{
 		{
@@ -16,7 +23,10 @@ func TestTemplate(t *testing.T) {
 type Mock struct { 
 }
 `,
-			in: &targetInterface{},
+			args: args{
+				defn: &targetInterface{},
+				templateStr: defaultTemplate,
+			},
 		},
 
 		{
@@ -48,18 +58,21 @@ func (m *FooBarMock) NoReturnParam( a string ) {
 }
 `,
 
-			in: &targetInterface{
-				TypeName: "FooBar",
-				Methods: []*method{
-					{Name: "Act", Signature: "( ) error", OrderedParams: "( )", HasReturn: true},
-					{Name: "DoStuff", Signature: "( a , b string, other ... interface{} ) ( int , error )", OrderedParams: "( a , b , other ... )", HasReturn: true},
-					{Name: "NoReturnParam", Signature: "( a string )", OrderedParams: "( a )", HasReturn: false},
+			args: args{
+				defn: &targetInterface{
+					TypeName: "FooBar",
+					Methods: []*method{
+						{Name: "Act", Signature: "( ) error", OrderedParams: "( )", HasReturn: true},
+						{Name: "DoStuff", Signature: "( a , b string, other ... interface{} ) ( int , error )", OrderedParams: "( a , b , other ... )", HasReturn: true},
+						{Name: "NoReturnParam", Signature: "( a string )", OrderedParams: "( a )", HasReturn: false},
+					},
 				},
+				templateStr: defaultTemplate,
 			},
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			b, err := mockFromTemplate(tc.in)
+			b, err := mockFromTemplate(tc.args.defn, tc.args.templateStr)
 			if err != nil {
 				t.Fatalf("unexpected error: %s", err.Error())
 			}

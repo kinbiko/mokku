@@ -1,12 +1,14 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"os"
 
 	"github.com/atotto/clipboard"
 	"github.com/kinbiko/mokku"
+	"github.com/kinbiko/mokku/templates"
 )
 
 const usage = `Usage:
@@ -16,14 +18,22 @@ const usage = `Usage:
 
 func main() {
 	flag.Usage = func() { fmt.Println(usage) }
+	templateName := flag.String("t", "default", "TemplateName")
 	flag.Parse()
+	if *templateName == "" {
+		errorOut(errors.New("invalid TemplateName"))
+	}
+	templateStr, err := templates.Get(*templateName)
+	if err != nil {
+		errorOut(err)
+	}
 
 	s, err := clipboard.ReadAll()
 	if err != nil {
 		errorOut(err)
 	}
 
-	mock, err := mokku.Mock(mokku.Config{}, []byte(s))
+	mock, err := mokku.Mock(mokku.Config{TemplateStr: templateStr}, []byte(s))
 	if err != nil {
 		errorOut(err)
 	}
