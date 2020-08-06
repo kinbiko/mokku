@@ -4,11 +4,11 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"os"
 
 	"github.com/atotto/clipboard"
 	"github.com/kinbiko/mokku"
-	"github.com/kinbiko/mokku/templates"
 )
 
 const usage = `Usage:
@@ -16,16 +16,31 @@ const usage = `Usage:
 2. Run 'mokku'
 3. Paste the mocked implementation that has been written to your clipboard`
 
+const defaultTemplate = `
+type {{.TypeName}}Mock struct { {{ range .Methods }}
+	{{.Name}}Func func{{.Signature}}{{ end }}
+}
+{{if .Methods }}{{$typeName := .TypeName}}
+{{range $val := .Methods}}func (m *{{$typeName}}Mock) {{$val.Name}}{{$val.Signature}} {
+	if m.{{$val.Name}}Func == nil {
+		panic("unexpected call to {{$val.Name}}")
+	}
+	{{if $val.HasReturn}}return {{ end }}m.{{$val.Name}}Func{{$val.OrderedParams}}
+}
+{{ end }}{{ end }}`
+
 func main() {
 	flag.Usage = func() { fmt.Println(usage) }
-	templateName := flag.String("t", "default", "TemplateName")
+	templateName := flag.String("t", "", "TemplateFile")
 	flag.Parse()
-	if *templateName == "" {
-		errorOut(errors.New("invalid TemplateName"))
-	}
-	templateStr, err := templates.Get(*templateName)
-	if err != nil {
-		errorOut(err)
+
+	templateStr := defaultTemplate
+	if *templateName != "" {
+		var err error
+		templateStr, err = loadTemplate(*templateName)
+		if err != nil {
+			errorOut(err)
+		}
 	}
 
 	s, err := clipboard.ReadAll()
@@ -41,6 +56,16 @@ func main() {
 	if err = clipboard.WriteAll(string(mock)); err != nil {
 		errorOut(err)
 	}
+}
+
+// loadTemplate loads template string from filePath
+func loadTemplate(filePath string) (string, error) {
+	content, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return "", errors.New(fmt.Sprintf("failed to read file %s: %v", filePath, err))
+	}
+	templateStr := string(content)
+	return templateStr, nil
 }
 
 func errorOut(err error) {

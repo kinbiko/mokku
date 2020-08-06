@@ -8,6 +8,8 @@ type Config struct {
 	// Intentionally empty at the moment.
 	// Included only to avoid breaking backwards compatibility if a newer
 	// version of the package supports new features
+
+	// TemplateStr is mock template string
 	TemplateStr string
 }
 

@@ -2,20 +2,29 @@ package mokku
 
 import (
 	"testing"
-
-	"github.com/kinbiko/mokku/templates"
 )
 
 func TestTemplate(t *testing.T) {
-	defaultTemplate := templates.GetDefault()
+	const templateStr = `
+type {{.TypeName}}Mock struct { {{ range .Methods }}
+	{{.Name}}Func func{{.Signature}}{{ end }}
+}
+{{if .Methods }}{{$typeName := .TypeName}}
+{{range $val := .Methods}}func (m *{{$typeName}}Mock) {{$val.Name}}{{$val.Signature}} {
+	if m.{{$val.Name}}Func == nil {
+		panic("unexpected call to {{$val.Name}}")
+	}
+	{{if $val.HasReturn}}return {{ end }}m.{{$val.Name}}Func{{$val.OrderedParams}}
+}
+{{ end }}{{ end }}`
+
 	type args struct {
-		defn *targetInterface
-		templateStr string
 	}
 	for _, tc := range []struct {
-		name string
-		args args
-		exp  string
+		name        string
+		defn        *targetInterface
+		templateStr string
+		exp         string
 	}{
 		{
 			name: "basic case",
@@ -23,10 +32,8 @@ func TestTemplate(t *testing.T) {
 type Mock struct { 
 }
 `,
-			args: args{
-				defn: &targetInterface{},
-				templateStr: defaultTemplate,
-			},
+			defn:        &targetInterface{},
+			templateStr: templateStr,
 		},
 
 		{
@@ -58,21 +65,19 @@ func (m *FooBarMock) NoReturnParam( a string ) {
 }
 `,
 
-			args: args{
-				defn: &targetInterface{
-					TypeName: "FooBar",
-					Methods: []*method{
-						{Name: "Act", Signature: "( ) error", OrderedParams: "( )", HasReturn: true},
-						{Name: "DoStuff", Signature: "( a , b string, other ... interface{} ) ( int , error )", OrderedParams: "( a , b , other ... )", HasReturn: true},
-						{Name: "NoReturnParam", Signature: "( a string )", OrderedParams: "( a )", HasReturn: false},
-					},
+			defn: &targetInterface{
+				TypeName: "FooBar",
+				Methods: []*method{
+					{Name: "Act", Signature: "( ) error", OrderedParams: "( )", HasReturn: true},
+					{Name: "DoStuff", Signature: "( a , b string, other ... interface{} ) ( int , error )", OrderedParams: "( a , b , other ... )", HasReturn: true},
+					{Name: "NoReturnParam", Signature: "( a string )", OrderedParams: "( a )", HasReturn: false},
 				},
-				templateStr: defaultTemplate,
 			},
+			templateStr: templateStr,
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			b, err := mockFromTemplate(tc.args.defn, tc.args.templateStr)
+			b, err := mockFromTemplate(tc.defn, tc.templateStr)
 			if err != nil {
 				t.Fatalf("unexpected error: %s", err.Error())
 			}
