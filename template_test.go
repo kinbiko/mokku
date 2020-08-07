@@ -5,10 +5,26 @@ import (
 )
 
 func TestTemplate(t *testing.T) {
+	const templateStr = `
+type {{.TypeName}}Mock struct { {{ range .Methods }}
+	{{.Name}}Func func{{.Signature}}{{ end }}
+}
+{{if .Methods }}{{$typeName := .TypeName}}
+{{range $val := .Methods}}func (m *{{$typeName}}Mock) {{$val.Name}}{{$val.Signature}} {
+	if m.{{$val.Name}}Func == nil {
+		panic("unexpected call to {{$val.Name}}")
+	}
+	{{if $val.HasReturn}}return {{ end }}m.{{$val.Name}}Func{{$val.OrderedParams}}
+}
+{{ end }}{{ end }}`
+
+	type args struct {
+	}
 	for _, tc := range []struct {
-		name string
-		in   *targetInterface
-		exp  string
+		name        string
+		defn        *targetInterface
+		templateStr string
+		exp         string
 	}{
 		{
 			name: "basic case",
@@ -16,7 +32,8 @@ func TestTemplate(t *testing.T) {
 type Mock struct { 
 }
 `,
-			in: &targetInterface{},
+			defn:        &targetInterface{},
+			templateStr: templateStr,
 		},
 
 		{
@@ -48,7 +65,7 @@ func (m *FooBarMock) NoReturnParam( a string ) {
 }
 `,
 
-			in: &targetInterface{
+			defn: &targetInterface{
 				TypeName: "FooBar",
 				Methods: []*method{
 					{Name: "Act", Signature: "( ) error", OrderedParams: "( )", HasReturn: true},
@@ -56,10 +73,11 @@ func (m *FooBarMock) NoReturnParam( a string ) {
 					{Name: "NoReturnParam", Signature: "( a string )", OrderedParams: "( a )", HasReturn: false},
 				},
 			},
+			templateStr: templateStr,
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			b, err := mockFromTemplate(tc.in)
+			b, err := mockFromTemplate(tc.defn, tc.templateStr)
 			if err != nil {
 				t.Fatalf("unexpected error: %s", err.Error())
 			}
