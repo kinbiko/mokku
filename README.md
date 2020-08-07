@@ -68,6 +68,27 @@ func RegisterUser(userName string, repo UserRepository) {
 }
 ```
 
+### Defining Custom Templates
+
+You can also define your own custom template to use for your mocks, by defining `MOKKU_TEMPLATE_PATH` that is the path to a file containing a Go text template, that uses the same variables found in the default template:
+
+```go
+const defaultTemplate = `
+type {{.TypeName}}Mock struct { {{ range .Methods }}
+	{{.Name}}Func func{{.Signature}}{{ end }}
+}
+{{if .Methods }}{{$typeName := .TypeName}}
+{{range $val := .Methods}}func (m *{{$typeName}}Mock) {{$val.Name}}{{$val.Signature}} {
+	if m.{{$val.Name}}Func == nil {
+		panic("unexpected call to {{$val.Name}}")
+	}
+	{{if $val.HasReturn}}return {{ end }}m.{{$val.Name}}Func{{$val.OrderedParams}}
+}
+{{ end }}{{ end }}`
+```
+
+[See the GoDocs](https://pkg.go.dev/github.com/kinbiko/mokku?tab=doc) for a more detailed explanation of the template variables.
+
 ## Contributing
 
 Please raise an issue to discuss any changes you'd like to make to this project.
