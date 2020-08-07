@@ -18,13 +18,10 @@ type {{.TypeName}}Mock struct { {{ range .Methods }}
 }
 {{ end }}{{ end }}`
 
-	type args struct {
-	}
 	for _, tc := range []struct {
-		name        string
-		defn        *targetInterface
-		templateStr string
-		exp         string
+		name string
+		in   *targetInterface
+		exp  string
 	}{
 		{
 			name: "basic case",
@@ -32,8 +29,7 @@ type {{.TypeName}}Mock struct { {{ range .Methods }}
 type Mock struct { 
 }
 `,
-			defn:        &targetInterface{},
-			templateStr: templateStr,
+			in: &targetInterface{},
 		},
 
 		{
@@ -65,7 +61,7 @@ func (m *FooBarMock) NoReturnParam( a string ) {
 }
 `,
 
-			defn: &targetInterface{
+			in: &targetInterface{
 				TypeName: "FooBar",
 				Methods: []*method{
 					{Name: "Act", Signature: "( ) error", OrderedParams: "( )", HasReturn: true},
@@ -73,11 +69,10 @@ func (m *FooBarMock) NoReturnParam( a string ) {
 					{Name: "NoReturnParam", Signature: "( a string )", OrderedParams: "( a )", HasReturn: false},
 				},
 			},
-			templateStr: templateStr,
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			b, err := mockFromTemplate(tc.defn, tc.templateStr)
+			b, err := mockFromTemplate(tc.in, templateStr)
 			if err != nil {
 				t.Fatalf("unexpected error: %s", err.Error())
 			}

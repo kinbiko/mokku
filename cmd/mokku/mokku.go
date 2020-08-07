@@ -1,11 +1,11 @@
 package main
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	"github.com/atotto/clipboard"
 	"github.com/kinbiko/mokku"
@@ -31,16 +31,14 @@ type {{.TypeName}}Mock struct { {{ range .Methods }}
 
 func main() {
 	flag.Usage = func() { fmt.Println(usage) }
-	templateName := flag.String("t", "", "TemplateFile")
 	flag.Parse()
 
-	templateStr := defaultTemplate
-	if *templateName != "" {
-		var err error
-		templateStr, err = loadTemplate(*templateName)
-		if err != nil {
-			errorOut(err)
-		}
+	templateStr, err := loadTemplate(os.Getenv("MOKKU_TEMPLATE_PATH"))
+	if err != nil {
+		errorOut(err)
+	}
+	if templateStr == "" {
+		templateStr = defaultTemplate
 	}
 
 	s, err := clipboard.ReadAll()
@@ -58,14 +56,16 @@ func main() {
 	}
 }
 
-// loadTemplate loads template string from filePath
+// loadTemplate loads template string from filePath, if there is one.
 func loadTemplate(filePath string) (string, error) {
-	content, err := ioutil.ReadFile(filePath)
-	if err != nil {
-		return "", errors.New(fmt.Sprintf("failed to read file %s: %v", filePath, err))
+	if filePath == "" { // There may not be an external template path given
+		return "", nil
 	}
-	templateStr := string(content)
-	return templateStr, nil
+	content, err := ioutil.ReadFile(filepath.Clean(filePath))
+	if err != nil {
+		return "", fmt.Errorf("failed to read file %s: %v", filePath, err)
+	}
+	return string(content), nil
 }
 
 func errorOut(err error) {

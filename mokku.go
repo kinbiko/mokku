@@ -2,14 +2,17 @@ package mokku
 
 import "go/format"
 
-// Config is currently ignored but is expected to contain various configuration
-// options for this tool given by user-provided flags in the future.
+// Config is defines all configuration options for mokku.
+// In particular, this package treats additions to this struct as *non-breaking* changes.
 type Config struct {
-	// Intentionally empty at the moment.
-	// Included only to avoid breaking backwards compatibility if a newer
-	// version of the package supports new features
-
-	// TemplateStr is mock template string
+	// TemplateStr is mock template string.
+	// The template will attempt to fill in the following fields:
+	//  TypeName -- string. E.g. "MyInterface"
+	//	Methods  -- composite type containing:
+	//		Name			-- string. E.g. "DoStuff"
+	//		Signature		-- string. E.g. "(a, b int) error"
+	//		OrderedParams	-- string. E.g. "(a, b)"
+	//		HasReturn		-- bool. Identifies whether or not the mocked method should return anything.
 	TemplateStr string
 }
 
