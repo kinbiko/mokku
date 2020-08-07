@@ -1,14 +1,20 @@
 package mokku
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 )
 
 func TestTemplate(t *testing.T) {
+	backupValue := os.Getenv(mokkuTemplatePathEnvName)
+
 	for _, tc := range []struct {
-		name string
-		in   *targetInterface
-		exp  string
+		name     string
+		in       *targetInterface
+		exp      string
+		tearUp   func(*testing.T)
+		tearDown func(*testing.T)
 	}{
 		{
 			name: "basic case",
@@ -57,8 +63,45 @@ func (m *FooBarMock) NoReturnParam( a string ) {
 				},
 			},
 		},
+
+		{
+			name: "from template",
+			exp: `
+type BazMock struct { 
+	HelloWorldFunc func( ) error
+}
+`,
+
+			in: &targetInterface{
+				TypeName: "Baz",
+				Methods: []*method{
+					{Name: "HelloWorld", Signature: "( ) error", OrderedParams: "( )", HasReturn: true},
+				},
+			},
+
+			tearUp: func(t *testing.T) {
+				err := os.Setenv(mokkuTemplatePathEnvName, filepath.Join("testdata", "test.tpl"))
+				if err != nil {
+					t.Fatal(err)
+				}
+			},
+
+			tearDown: func(t *testing.T) {
+				err := os.Setenv(mokkuTemplatePathEnvName, backupValue)
+				if err != nil {
+					t.Fatal(err)
+				}
+			},
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
+			if tc.tearUp != nil {
+				tc.tearUp(t)
+			}
+			if tc.tearDown != nil {
+				defer tc.tearDown(t)
+			}
+
 			b, err := mockFromTemplate(tc.in)
 			if err != nil {
 				t.Fatalf("unexpected error: %s", err.Error())

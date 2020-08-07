@@ -2,7 +2,13 @@ package mokku
 
 import (
 	"bytes"
+	"io/ioutil"
+	"os"
 	"text/template"
+)
+
+const (
+	mokkuTemplatePathEnvName = "MOKKU_TEMPLATE_PATH"
 )
 
 const tpl = `
@@ -19,7 +25,19 @@ type {{.TypeName}}Mock struct { {{ range .Methods }}
 {{ end }}{{ end }}`
 
 func mockFromTemplate(defn *targetInterface) ([]byte, error) {
-	tmpl, err := template.New("mock").Parse(tpl)
+	// set default template to source template
+	src := tpl
+
+	p := os.Getenv(mokkuTemplatePathEnvName)
+	if p != "" {
+		// if succeeding to read from the file,
+		// set to source template
+		if b, err := ioutil.ReadFile(p); err == nil {
+			src = string(b)
+		}
+	}
+
+	tmpl, err := template.New("mock").Parse(src)
 	if err != nil {
 		return nil, err
 	}
