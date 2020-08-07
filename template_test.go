@@ -5,6 +5,19 @@ import (
 )
 
 func TestTemplate(t *testing.T) {
+	const templateStr = `
+type {{.TypeName}}Mock struct { {{ range .Methods }}
+	{{.Name}}Func func{{.Signature}}{{ end }}
+}
+{{if .Methods }}{{$typeName := .TypeName}}
+{{range $val := .Methods}}func (m *{{$typeName}}Mock) {{$val.Name}}{{$val.Signature}} {
+	if m.{{$val.Name}}Func == nil {
+		panic("unexpected call to {{$val.Name}}")
+	}
+	{{if $val.HasReturn}}return {{ end }}m.{{$val.Name}}Func{{$val.OrderedParams}}
+}
+{{ end }}{{ end }}`
+
 	for _, tc := range []struct {
 		name string
 		in   *targetInterface
@@ -59,7 +72,7 @@ func (m *FooBarMock) NoReturnParam( a string ) {
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			b, err := mockFromTemplate(tc.in)
+			b, err := mockFromTemplate(tc.in, templateStr)
 			if err != nil {
 				t.Fatalf("unexpected error: %s", err.Error())
 			}
