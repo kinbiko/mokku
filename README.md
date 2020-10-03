@@ -40,7 +40,7 @@ That's it. Below is an example of how to use `mokku` within vim.
 ### Using the generated code
 
 If you have been writing your own mocks or if you're familiar with
-[`Moq`](github.com/matryer/moq) then the usage will look very familiar to you:
+[`Moq`](https://github.com/matryer/moq) then the usage will look very familiar to you:
 
 ```go
 func TestRegisterUser(t *testing.T) {
