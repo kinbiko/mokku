@@ -1,9 +1,9 @@
 ![logo](./logo.png)
 
 <!-- TODO: go awesome badge -->
-<!-- TODO: coverage badge -->
 
 [![Build Status](https://github.com/kinbiko/mokku/workflows/Go/badge.svg)](https://github.com/kinbiko/mokku/actions)
+[![Coverage Status](https://coveralls.io/repos/github/kinbiko/mokku/badge.svg?branch=master)](https://coveralls.io/github/kinbiko/mokku?branch=master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/kinbiko/mokku)](https://goreportcard.com/report/github.com/kinbiko/mokku)
 [![Latest version](https://img.shields.io/github/tag/kinbiko/mokku.svg?label=latest%20version&style=flat)](https://github.com/kinbiko/mokku/releases)
 [![Go Documentation](http://img.shields.io/badge/godoc-documentation-blue.svg?style=flat)](https://pkg.go.dev/github.com/kinbiko/mokku?tab=doc)
