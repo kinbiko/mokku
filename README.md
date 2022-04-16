@@ -1,7 +1,5 @@
 ![logo](./logo.png)
 
-<!-- TODO: go awesome badge -->
-
 [![Build Status](https://github.com/kinbiko/mokku/workflows/Go/badge.svg)](https://github.com/kinbiko/mokku/actions)
 [![Coverage Status](https://coveralls.io/repos/github/kinbiko/mokku/badge.svg?branch=master)](https://coveralls.io/github/kinbiko/mokku?branch=master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/kinbiko/mokku)](https://goreportcard.com/report/github.com/kinbiko/mokku)
@@ -9,7 +7,7 @@
 [![Go Documentation](http://img.shields.io/badge/godoc-documentation-blue.svg?style=flat)](https://pkg.go.dev/github.com/kinbiko/mokku?tab=doc)
 [![License](https://img.shields.io/github/license/kinbiko/mokku.svg?style=flat)](https://github.com/kinbiko/mokku/blob/master/LICENSE)
 
-A clipboard-based mocking framework for Go that gets out of your way.
+Because you don't want to study the details of yet another framework, `mokku` is a clipboard-based mocking framework for Go that gets out of your way.
 
 This tool has been built with inspiration lovingly taken from [`Moq`](https://github.com/matryer/moq), and fuelled by the frustration of using [`gomock`](https://github.com/golang/mock).
 
