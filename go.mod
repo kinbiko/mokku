@@ -1,5 +1,5 @@
 module github.com/kinbiko/mokku
 
-go 1.13
+go 1.18
 
-require github.com/atotto/clipboard v0.1.2
+require github.com/atotto/clipboard v0.1.4
