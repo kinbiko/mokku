@@ -86,6 +86,20 @@ func TestParser(t *testing.T) {
 		},
 
 		{
+			name: "trailing comma",
+			src: `type Calculator interface {
+				Add(
+					a int,
+					b int,
+				) int
+			}`,
+			exp: &targetInterface{
+				TypeName: "Calculator",
+				Methods:  []*method{{"Add", `( a int , b int , ) int`, `( a , b , )`, true}},
+			},
+		},
+
+		{
 			name: "mega complex example",
 			src: `type GoodLuck interface {
 				First()

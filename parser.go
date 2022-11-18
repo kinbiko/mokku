@@ -194,7 +194,9 @@ func parseArgs(src string) string {
 			if lit == "" {
 				lit = tok.String()
 			}
-			collect = append(collect, lit)
+			if lit != ")" {
+				collect = append(collect, lit)
+			}
 		}
 		switch tok {
 		case token.COMMA:
