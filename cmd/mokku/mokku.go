@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -30,12 +29,20 @@ type {{.TypeName}}Mock struct { {{ range .Methods }}
 {{ end }}{{ end }}`
 
 func main() {
+	if err := run(); err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+		flag.Usage()
+		os.Exit(1)
+	}
+}
+
+func run() error {
 	flag.Usage = func() { fmt.Println(usage) }
 	flag.Parse()
 
 	templateStr, err := loadTemplate(os.Getenv("MOKKU_TEMPLATE_PATH"))
 	if err != nil {
-		errorOut(err)
+		return err
 	}
 	if templateStr == "" {
 		templateStr = defaultTemplate
@@ -43,17 +50,18 @@ func main() {
 
 	s, err := clipboard.ReadAll()
 	if err != nil {
-		errorOut(err)
+		return err
 	}
 
 	mock, err := mokku.Mock(mokku.Config{TemplateStr: templateStr}, []byte(s))
 	if err != nil {
-		errorOut(err)
+		return err
 	}
 
-	if err = clipboard.WriteAll(string(mock)); err != nil {
-		errorOut(err)
+	if err := clipboard.WriteAll(string(mock)); err != nil {
+		return err
 	}
+	return nil
 }
 
 // loadTemplate loads template string from filePath, if there is one.
@@ -61,15 +69,9 @@ func loadTemplate(filePath string) (string, error) {
 	if filePath == "" { // There may not be an external template path given
 		return "", nil
 	}
-	content, err := ioutil.ReadFile(filepath.Clean(filePath))
+	content, err := os.ReadFile(filepath.Clean(filePath))
 	if err != nil {
 		return "", fmt.Errorf("failed to read file %s: %v", filePath, err)
 	}
 	return string(content), nil
-}
-
-func errorOut(err error) {
-	fmt.Fprintln(os.Stderr, err.Error())
-	flag.Usage()
-	os.Exit(1)
 }
